@@ -597,7 +597,8 @@ class Api(object):
                 response = self._req('/collections/{}'.format(folderid), {
                     "username":username,
                     "offset":offset,
-                    "limit":limit
+                    "limit":limit,
+                    "mature_content":True
                 })
 
         deviations = []
