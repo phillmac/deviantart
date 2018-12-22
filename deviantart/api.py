@@ -236,7 +236,8 @@ class Api(object):
             response = self._req('/browse/hot', {
                 "category_path":category_path,
                 "offset":offset,
-                "limit":limit
+                "limit":limit,
+                "mature_content": True
             })
         elif endpoint == "morelikethis":
             if seed:
@@ -244,7 +245,8 @@ class Api(object):
                     "seed":seed,
                     "category_path":category_path,
                     "offset":offset,
-                    "limit":limit
+                    "limit":limit,
+                    "mature_content": True
                 })
             else:
                 raise DeviantartError("No seed defined.")
@@ -253,13 +255,15 @@ class Api(object):
                 "category_path":category_path,
                 "q":q,
                 "offset":offset,
-                "limit":limit
+                "limit":limit,
+                "mature_content": True
             })
         elif endpoint == "undiscovered":
             response = self._req('/browse/undiscovered', {
                 "category_path":category_path,
                 "offset":offset,
-                "limit":limit
+                "limit":limit,
+                "mature_content": True
             })
         elif endpoint == "popular":
             response = self._req('/browse/popular', {
@@ -267,14 +271,16 @@ class Api(object):
                 "q":q,
                 "timerange":timerange,
                 "offset":offset,
-                "limit":limit
+                "limit":limit,
+                "mature_content": True
             })
         elif endpoint == "tags":
             if tag:
                 response = self._req('/browse/tags', {
                     "tag":tag,
                     "offset":offset,
-                    "limit":limit
+                    "limit":limit,
+                    "mature_content": True
                 })
             else:
                 raise DeviantartError("No tag defined.")
@@ -588,7 +594,8 @@ class Api(object):
         if not username and self.standard_grant_type == "authorization_code":
             response = self._req('/collections/{}'.format(folderid), {
                 "offset":offset,
-                "limit":limit
+                "limit":limit,
+                "mature_content": True
             })
         else:
             if not username:
