@@ -742,7 +742,8 @@ class Api(object):
 
         response = self._req('/gallery/all', {'username': username,
                                                'offset': offset,
-                                               'limit': limit})
+                                               'limit': limit,
+                                               "mature_content":True})
 
         deviations = []
 
@@ -780,7 +781,8 @@ class Api(object):
             response = self._req('/gallery/{}'.format(folderid), {
                 "mode":mode,
                 "offset":offset,
-                "limit":limit
+                "limit":limit,
+                "mature_content":True
             })
         else:
             if not username:
@@ -790,7 +792,8 @@ class Api(object):
                     "username":username,
                     "mode":mode,
                     "offset":offset,
-                    "limit":limit
+                    "limit":limit,
+                    "mature_content":True
                 })
 
         deviations = []
