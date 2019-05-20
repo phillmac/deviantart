@@ -1863,7 +1863,14 @@ class Api(object):
             response = self.oauth.request(request_parameter, data=encdata)
             self._checkResponseForErrors(response)
         except HTTPError as e:
-            raise DeviantartError(e)
+            # Try to use refresh token then retry the request once
+            if e.code == 401 and self.refresh_token is not None:
+                print("Got 401, trying refresh token")
+                self.auth(refresh_token=self.refresh_token)
+                response = self.oauth.request(request_parameter, data=encdata)
+                self._checkResponseForErrors(response)
+            else:
+                raise DeviantartError(e)
 
         return response
 
