@@ -48,7 +48,8 @@ class Api(object):
         client_secret,
         redirect_uri="",
         standard_grant_type="client_credentials",
-        scope="browse feed message note stash user user.manage comment.post collection"
+        scope="browse feed message note stash user user.manage comment.post collection",
+        mature_content=False
     ):
 
         """Instantiate Class and create OAuth Client"""
@@ -62,6 +63,7 @@ class Api(object):
         self.redirect_uri = redirect_uri
         self.standard_grant_type = standard_grant_type
         self.scope = scope
+        self.mature_content = mature_content
         self.access_token = None
         self.refresh_token = None
 
@@ -219,7 +221,7 @@ class Api(object):
 
 
 
-    def browse(self, endpoint="hot", category_path="", seed="", q="", timerange="24hr", tag="", offset=0, limit=10):
+    def browse(self, endpoint="hot", category_path="", seed="", q="", timerange="24hr", tag="", offset=0, limit=10, mature_content=None):
 
         """Fetch deviations from public endpoints
 
@@ -230,6 +232,7 @@ class Api(object):
         :param tag: The tag to browse
         :param offset: the pagination offset
         :param limit: the pagination limit
+        :param mature_content: Show mature content in results, default False, or as as set in object
         """
 
         if endpoint == "hot":
@@ -237,7 +240,7 @@ class Api(object):
                 "category_path":category_path,
                 "offset":offset,
                 "limit":limit,
-                "mature_content": True
+                "mature_content": self.mature_content if mature_content is None else mature_content
             })
         elif endpoint == "morelikethis":
             if seed:
@@ -246,7 +249,7 @@ class Api(object):
                     "category_path":category_path,
                     "offset":offset,
                     "limit":limit,
-                    "mature_content": True
+                    "mature_content": self.mature_content if mature_content is None else mature_content
                 })
             else:
                 raise DeviantartError("No seed defined.")
@@ -256,14 +259,14 @@ class Api(object):
                 "q":q,
                 "offset":offset,
                 "limit":limit,
-                "mature_content": True
+                "mature_content": self.mature_content if mature_content is None else mature_content
             })
         elif endpoint == "undiscovered":
             response = self._req('/browse/undiscovered', {
                 "category_path":category_path,
                 "offset":offset,
                 "limit":limit,
-                "mature_content": True
+                "mature_content": self.mature_content if mature_content is None else mature_content
             })
         elif endpoint == "popular":
             response = self._req('/browse/popular', {
@@ -272,7 +275,7 @@ class Api(object):
                 "timerange":timerange,
                 "offset":offset,
                 "limit":limit,
-                "mature_content": True
+                "mature_content": self.mature_content if mature_content is None else mature_content
             })
         elif endpoint == "tags":
             if tag:
@@ -280,7 +283,7 @@ class Api(object):
                     "tag":tag,
                     "offset":offset,
                     "limit":limit,
-                    "mature_content": True
+                    
                 })
             else:
                 raise DeviantartError("No tag defined.")
@@ -581,7 +584,7 @@ class Api(object):
 
 
 
-    def get_collection(self, folderid, username="", offset=0, limit=10):
+    def get_collection(self, folderid, username="", offset=0, limit=10, mature_content=None):
 
         """Fetch collection folder contents
 
@@ -589,13 +592,14 @@ class Api(object):
         :param username: The user to list folders for, if omitted the authenticated user is used
         :param offset: the pagination offset
         :param limit: the pagination limit
+        :param mature_content: Show mature content in results, default False, or as as set in object
         """
 
         if not username and self.standard_grant_type == "authorization_code":
             response = self._req('/collections/{}'.format(folderid), {
                 "offset":offset,
                 "limit":limit,
-                "mature_content": True
+                "mature_content": self.mature_content if mature_content is None else mature_content
             })
         else:
             if not username:
@@ -605,7 +609,7 @@ class Api(object):
                     "username":username,
                     "offset":offset,
                     "limit":limit,
-                    "mature_content":True
+                    "mature_content": self.mature_content if mature_content is None else mature_content
                 })
 
         deviations = []
@@ -736,13 +740,14 @@ class Api(object):
 
 
 
-    def get_gallery_all(self, username='', offset=0, limit=10):
+    def get_gallery_all(self, username='', offset=0, limit=10, mature_content=None):
         """
         Get all of a user's deviations
 
         :param username: The user to query, defaults to current user
         :param offset: the pagination offset
         :param limit: the pagination limit
+        :param mature_content: Show mature content in results, default False, or as as set in object
         """
         if not username:
             raise DeviantartError('No username defined.')
@@ -750,7 +755,7 @@ class Api(object):
         response = self._req('/gallery/all', {'username': username,
                                                'offset': offset,
                                                'limit': limit,
-                                               "mature_content":True})
+                                               "mature_content": self.mature_content if mature_content is None else mature_content})
 
         deviations = []
 
@@ -773,7 +778,7 @@ class Api(object):
 
 
 
-    def get_gallery_folder(self, username="", folderid="", mode="popular", offset=0, limit=10):
+    def get_gallery_folder(self, username="", folderid="", mode="popular", offset=0, limit=10, mature_content=None):
 
         """Fetch gallery folder contents
 
@@ -782,6 +787,7 @@ class Api(object):
         :param mode: Sort results by either newest or popular
         :param offset: the pagination offset
         :param limit: the pagination limit
+        :param mature_content: Show mature content in results, default False, or as as set in object
         """
 
         if not username and self.standard_grant_type == "authorization_code":
@@ -789,7 +795,7 @@ class Api(object):
                 "mode":mode,
                 "offset":offset,
                 "limit":limit,
-                "mature_content":True
+                "mature_content": self.mature_content if mature_content is None else mature_content
             })
         else:
             if not username:
@@ -800,7 +806,7 @@ class Api(object):
                     "mode":mode,
                     "offset":offset,
                     "limit":limit,
-                    "mature_content":True
+                    "mature_content": self.mature_content if mature_content is None else mature_content
                 })
 
         deviations = []
@@ -1075,18 +1081,20 @@ class Api(object):
 
 
 
-    def get_friends(self, username, offset=0, limit=10):
+    def get_friends(self, username, offset=0, limit=10, mature_content=None):
 
         """Get the users list of friends
 
         :param username: The username you want to get a list of friends of
         :param offset: the pagination offset
         :param limit: the pagination limit
+        :param mature_content: Show mature content in results, default False, or as as set in object
         """
 
         response = self._req('/user/friends/{}'.format(username), {
             'offset' : offset,
-            'limit' : limit
+            'limit' : limit,
+            "mature_content": self.mature_content if mature_content is None else mature_content
         })
 
         friends = []
@@ -1753,6 +1761,84 @@ class Api(object):
             raise DeviantartError("Authentication through Authorization Code (Grant Type) is required in order to connect to this endpoint.")
 
         response = self._req('/notes/folders/remove/{}'.format(folderid))
+
+        return response
+
+
+
+    def get_feed_settings(self):
+
+        """Get feed settings
+
+        """
+
+        if self.standard_grant_type is not "authorization_code":
+            raise DeviantartError("Authentication through Authorization Code (Grant Type) is required in order to connect to this endpoint.")
+
+        response = self._req('/feed/settings')
+
+        return response
+
+
+
+    def update_feed_settings(self, include={}):
+
+        """Change feed settings
+
+        :param include: a dict of one or more items to change the settings of:
+            change = {
+                'statuses': True,
+                'deviations': True,
+                'journals': True,
+                'group_deviations': True,
+                'collections': True,
+                'misc': True,
+            }
+        """
+
+        if self.standard_grant_type is not "authorization_code":
+            raise DeviantartError("Authentication through Authorization Code (Grant Type) is required in order to connect to this endpoint.")
+
+        payload = {'include[{}]'.format(k): v for k, v in include.items()}
+
+        response = self._req('/feed/settings/update', post_data=payload)
+
+        return response['success']
+
+
+
+    def get_feed_home(self, cursor=None, mature_content=None, return_raw=False):
+
+        """Fetch Watch Feed
+
+        :param cursor: The cursor for the next page
+        :param mature_content: Show mature content in results, default False, or as as set in object
+        :param return_raw: get raw JSON response
+        """
+
+        if self.standard_grant_type is not "authorization_code":
+            raise DeviantartError("Authentication through Authorization Code (Grant Type) is required in order to connect to this endpoint.")
+
+        params = {"mature_content": self.mature_content if mature_content is None else mature_content}
+        if cursor is not None:
+            params['cursor'] = cursor
+
+        # Possible items collection_update, username_change, status, journal_submitted, deviation_submitted
+        response = self._req('/feed/home', params)
+
+        if not return_raw:
+            for item in response['items']:
+                if 'deviations' in item.keys():
+                    deviations = []
+                    for d in item['deviations']:
+                        dv = Deviation()
+                        dv.from_dict(d)
+                        deviations.append(dv)
+                    item['deviations'] = deviations
+                if 'by_user' in item.keys():
+                    u = User()
+                    u.from_dict(item['by_user'])
+                    item['by_user'] = u
 
         return response
 
