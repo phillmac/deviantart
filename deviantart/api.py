@@ -839,17 +839,20 @@ class Api(object):
 
 
 
-    def get_user(self, username="", ext_collections=False, ext_galleries=False):
+    def get_user(self, username="", ext_collections=False, ext_galleries=False, return_raw=False):
 
         """Get user profile information
 
         :param username: username to lookup profile of
         :param ext_collections: Include collection folder info
         :param ext_galleries: Include gallery folder info
+        :param return_raw: get raw JSON response
         """
 
         if not username and self.standard_grant_type == "authorization_code":
             response = self._req('/user/whoami')
+            if return_raw:
+                return response
             u = User()
             u.from_dict(response)
         else:
@@ -860,6 +863,8 @@ class Api(object):
                     'ext_collections' : ext_collections,
                     'ext_galleries' : ext_galleries
                 })
+                if return_raw:
+                    return response
                 u = User()
                 u.from_dict(response['user'])
 
