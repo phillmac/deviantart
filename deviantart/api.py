@@ -342,14 +342,19 @@ class Api(object):
 
 
 
-    def get_deviation(self, deviationid):
+    def get_deviation(self, deviationid, return_raw=False):
 
         """Fetch a single deviation
 
         :param deviationid: The deviationid you want to fetch
+        :param return_raw: get raw JSON response
         """
 
         response = self._req('/deviation/{}'.format(deviationid))
+
+        if return_raw:
+            return response
+            
         d = Deviation()
         d.from_dict(response)
 
@@ -740,7 +745,7 @@ class Api(object):
 
 
 
-    def get_gallery_all(self, username='', offset=0, limit=10, mature_content=None):
+    def get_gallery_all(self, username='', offset=0, limit=10, mature_content=None, return_raw=False):
         """
         Get all of a user's deviations
 
@@ -748,6 +753,7 @@ class Api(object):
         :param offset: the pagination offset
         :param limit: the pagination limit
         :param mature_content: Show mature content in results, default False, or as as set in object
+        :param return_raw: get raw JSON response
         """
         if not username:
             raise DeviantartError('No username defined.')
@@ -756,6 +762,9 @@ class Api(object):
                                                'offset': offset,
                                                'limit': limit,
                                                "mature_content": self.mature_content if mature_content is None else mature_content})
+
+        if return_raw:
+            return response
 
         deviations = []
 
@@ -1081,14 +1090,15 @@ class Api(object):
 
 
 
-    def get_friends(self, username, offset=0, limit=10, mature_content=None):
+    def get_friends(self, username='', offset=0, limit=10, mature_content=None, return_raw=False):
 
         """Get the users list of friends
 
-        :param username: The username you want to get a list of friends of
+        :param username: The username you want to get a list of friends of (optional, defaults to yourself)
         :param offset: the pagination offset
         :param limit: the pagination limit
         :param mature_content: Show mature content in results, default False, or as as set in object
+        :param return_raw: get raw JSON response
         """
 
         response = self._req('/user/friends/{}'.format(username), {
@@ -1096,6 +1106,9 @@ class Api(object):
             'limit' : limit,
             "mature_content": self.mature_content if mature_content is None else mature_content
         })
+
+        if return_raw:
+            return response
 
         friends = []
 
